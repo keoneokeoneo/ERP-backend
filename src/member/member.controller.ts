@@ -1,6 +1,14 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { MemberService } from './member.service';
 import { SignUpDto } from './dto/signup.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-strategy.guard';
 
 @Controller('/api/members')
 export class MemberController {
@@ -11,8 +19,9 @@ export class MemberController {
     return this.memberService.addMember(signUpDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async getMembers() {
-    return this.memberService.getMembers();
+  async getMember(@Request() req) {
+    return req.user;
   }
 }
