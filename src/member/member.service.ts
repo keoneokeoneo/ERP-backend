@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { SignUpDto } from './dto/signup.dto';
-import { Member } from './member.entity';
+import { MemberRepository } from './member.repository';
 
 @Injectable()
 export class MemberService {
-  constructor(
-    @InjectRepository(Member) private memberRepository: Repository<Member>,
-  ) {}
+  constructor(private memberRepository: MemberRepository) {}
 
   async addMember(signUpDto: SignUpDto) {
     const { email, name, password } = signUpDto;
@@ -17,12 +13,6 @@ export class MemberService {
       name,
       password,
     });
-
-    return result;
-  }
-
-  async getMembers() {
-    const result = await this.memberRepository.find();
 
     return result;
   }
