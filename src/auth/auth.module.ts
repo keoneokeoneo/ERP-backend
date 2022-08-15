@@ -1,25 +1,42 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { MemberRepository } from 'src/member/member.repository';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { AuthController } from './auth.controller';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtRefreshStrategy } from './jwt-refresh.strategy';
+import { MemberModule } from 'src/member/member.module';
+import { MemberService } from 'src/member/member.service';
 
 @Module({
   imports: [
     PassportModule.register({
       property: 'member',
     }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        expiresIn: '600s',
-      },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_ACCESS_TOKEN_SECERT_KEY'),
+        signOptions: {
+          expiresIn: `${configService.get(
+            'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+          )}s`,
+        },
+      }),
     }),
+    ConfigModule,
+    MemberModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, MemberRepository],
+  providers: [
+    AuthService,
+    MemberService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+  ],
   exports: [AuthService],
   controllers: [AuthController],
 })

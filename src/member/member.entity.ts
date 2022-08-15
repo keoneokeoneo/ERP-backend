@@ -38,4 +38,7 @@ export class Member {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true, select: false })
+  refreshToken: string;
 }

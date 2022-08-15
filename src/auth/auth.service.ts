@@ -1,33 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Member } from 'src/member/member.entity';
-import { MemberRepository } from 'src/member/member.repository';
+import { compare, hash } from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private memberRepository: MemberRepository,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async validateMember(email: string, password: string) {
-    const member = await this.memberRepository.findOne({
-      where: { email },
-      select: ['id', 'email', 'name', 'password', 'type'],
-    });
-
-    if (member && member.password === password) {
-      const { password, ...result } = member;
-      return result;
-    }
-
-    return null;
+  async hashData(data: string) {
+    const hashedData = await hash(data, 10);
+    return hashedData;
   }
 
-  async login(member: Member) {
-    const payload = { sub: member.id, name: member.name };
+  async compareHashData(data: string, hashedData: string) {
+    const result = await compare(data, hashedData);
+    return result;
+  }
+
+  getTokens(memberId: string, memberName: string) {
+    const payload = { sub: memberId, name: memberName };
+
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECERT_KEY'),
+      expiresIn: `${this.configService.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+      )}s`,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET_KEY'),
+      expiresIn: `${this.configService.get(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+      )}s`,
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
     };
   }
 }
