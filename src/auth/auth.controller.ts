@@ -8,6 +8,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MemberService } from 'src/member/member.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -15,6 +16,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './jwt-refresh-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 
+@ApiTags('Auth')
 @Controller('/api/auth')
 export class AuthController {
   constructor(
@@ -28,6 +30,7 @@ export class AuthController {
     return member;
   }
 
+  @ApiOperation({ summary: 'SignUp' })
   @Post('/signUp')
   async signUp(@Body() signUpDto: SignUpDto) {
     const existedMember = await this.memberService.getMemberByEmail(
@@ -53,11 +56,10 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({ summary: 'SignIn' })
   @UseGuards(LocalAuthGuard)
   @Post('/signIn')
   async signIn(@Request() req) {
-    console.log(req.member);
-
     const { id, name } = req.member;
 
     const tokens = this.authService.getTokens(id, name);
@@ -66,6 +68,7 @@ export class AuthController {
     return tokens;
   }
 
+  @ApiOperation({ summary: 'SignOut' })
   @UseGuards(JwtAuthGuard)
   @Get('/signOut')
   async signOut(@Request() req) {
@@ -73,6 +76,7 @@ export class AuthController {
     await this.memberService.deleteRefreshToken(id);
   }
 
+  @ApiOperation({ summary: 'Refresh' })
   @UseGuards(JwtRefreshAuthGuard)
   @Get('/refresh')
   async refresh(@Request() req) {
