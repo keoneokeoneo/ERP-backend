@@ -12,9 +12,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MemberService } from 'src/member/member.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { JwtRefreshAuthGuard } from './jwt-refresh-auth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @ApiTags('Auth')
 @Controller('/api/auth')
