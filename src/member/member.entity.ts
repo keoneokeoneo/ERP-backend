@@ -19,7 +19,7 @@ export class Member {
   @Column('varchar', { nullable: false, length: 30 })
   email: string;
 
-  @Column('varchar', { nullable: false })
+  @Column('varchar', { nullable: false, select: false })
   password: string;
 
   @Column('varchar', { nullable: false, length: 10 })
@@ -38,4 +38,7 @@ export class Member {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true, select: false })
+  refreshToken: string;
 }

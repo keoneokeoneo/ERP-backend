@@ -1,18 +1,16 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { SignUpDto } from './dto/signup.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Members')
 @Controller('/api/members')
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
-  @Post()
-  async addMember(@Body() signUpDto: SignUpDto) {
-    return this.memberService.addMember(signUpDto);
-  }
-
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async getMembers() {
-    return this.memberService.getMembers();
+  async getMember(@Request() req) {
+    return req.user;
   }
 }
